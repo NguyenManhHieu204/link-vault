@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String
+  name      String?
+  bookmarks Bookmark[]
+  tags      Tag[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Bookmark {
+  id          String        @id @default(uuid())
+  url         String
+  title       String?
+  description String?
+  image       String?       // OpenGraph image URL
+  favicon     String?       // Favicon URL
+  isPublic    Boolean       @default(false)
+  
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  
+  tags        BookmarkTag[]
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Tag {
+  id        String        @id @default(uuid())
+  name      String
+  
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  
+  bookmarks BookmarkTag[]
+
+  @@unique([name, userId])
+}
+
+model BookmarkTag {
+  bookmark   Bookmark @relation(fields: [bookmarkId], references: [id], onDelete: Cascade)
+  bookmarkId String
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId      String
+
+  @@id([bookmarkId, tagId])
+}
