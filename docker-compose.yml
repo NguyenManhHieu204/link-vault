@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  link-vault:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      # Map database ra ngoài để không bị mất data khi tắt container
+      - ./prisma/dev.db:/app/prisma/dev.db
